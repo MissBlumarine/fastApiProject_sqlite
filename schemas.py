@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class SoftwareBase(BaseModel):
@@ -6,12 +6,17 @@ class SoftwareBase(BaseModel):
     version: str
 
 
-class SoftwareCreate(SoftwareBase):
-    pass
-
-
-class Sofware(SoftwareBase):
+class SoftwareOut(SoftwareBase):
     id: int
 
+
+class SoftwareCreate(SoftwareBase):
+    id: int
+
+
+class Software(SoftwareBase):
+    id: int
+
+    #
     class Config:
         orm_mode = True

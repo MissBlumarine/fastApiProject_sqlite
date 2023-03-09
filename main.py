@@ -1,7 +1,10 @@
-from fastapi import FastAPI, Depends, Body
+from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
-from fastapi.responses import JSONResponse, FileResponse
+from typing import List
+
 from database import *
+import crud
+import schemas
 
 # создаем таблицу
 Base.metadata.create_all(bind=engine)
@@ -17,41 +20,24 @@ def get_db():
         db.close()
 
 
-@app.get("/versions")
-async def get_all_software(db: Session = Depends(get_db)):
-    return db.query(Software).all()
+@app.post("/version", response_model=schemas.Software)
+def create_software(software: schemas.SoftwareCreate, db: Session = Depends(get_db)):
+    software_new = crud.get_software_by_software_and_version(db, version=software.version, software=software.software)
+    if software_new:
+        raise HTTPException(status_code=400, detail="Уже существует")
+    return crud.create_software(db=db, software=software)
 
 
-@app.get("/versions/{id}")
-async def get_software_by_id(id, db: Session = Depends(get_db)):
-    software = db.query(Software).filter(Software.id == id).first()
-    if software == None:
-        return JSONResponse(status_code=404, content={'внимание': f'Software_продукта c id={id} не существует'})
-    return software
+@app.get("/versions", response_model=List[schemas.Software])
+def get_all_software(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    softwares = crud.get_all_software(db, skip=skip, limit=limit)
+    return softwares
 
 
+@app.get("/versions/{id}", response_model=schemas.Software)
+def get_software_by_id(software_id: int, db: Session = Depends(get_db)):
+    software_ex = crud.get_software_by_id(db, software_id=software_id)
+    if software_ex is None:
+        raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+    return software_ex
 
-@app.post("/version")
-async def create_software(data= Body(), db: Session = Depends(get_db)):
-    product = Software(software=data["software"], version=data["version"])
-    db.add(product)
-    db.commit()
-    db.refresh(product)
-    return product
-#
-#
-# @app.patch("/users/patch")
-# async def patch_software(data = Body(), db: Session = Depends(get_db)):
-#     product = db.query(Software).filter(Software.id == data["id"]).first()
-#     if product == None:
-#         return JSONResponse(status_code=404, content={'внимание': f'Software_продукта c id={id} не существует'})
-#     product.software = data["software"]
-#     product.version = data["version"]
-#     db.commit()
-#     db.refresh(product)
-#     return product
-
-
-# @app.get("/version")
-# async def create_software(name: str):
-#     return {"message": f"Hello {name}"}
