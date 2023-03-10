@@ -84,15 +84,13 @@ def test_get_software_by_id_none():
 
 
 def test_update_software_by_id():
-    software_id = 1
-    software = "i_licy"
-    version="2.5"
-    new = {"software": "i_licy", "version": "2.5"}
-    response = client.put(f"/version/1", data=Body(new))
+    response = client.put(f"/version/1?software=i-lucy&version=2.5")
     data = response.json()
-    print(data)
-    data["version"] = version
-    data["software"] = software
-    # assert data["version"]
-
     assert response.status_code == 200
+    assert data["software"] == 'i-lucy'
+    assert data["version"] == '2.5'
+
+
+def test_update_software_by_id_none():
+    response = client.put(f"/version/3?software=i-lucy&version=2.5")
+    assert response.status_code == 404
