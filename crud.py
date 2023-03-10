@@ -37,6 +37,8 @@ def update_software_by_id(db: Session, software_id: int, software: str, version:
 def create_software(db: Session, software: schemas.SoftwareCreate):
     # software_id = len(SOFTWARE) + 1
     software = models.Software(id=software.id, software=software.software, version=software.version)
+    # if software:
+    #     raise HTTPException(status_code=404, detail="Уже существует")
     db.add(software)
     db.commit()
     db.refresh(software)

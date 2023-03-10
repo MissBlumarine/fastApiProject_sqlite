@@ -7,8 +7,10 @@ from database import *
 import crud
 import schemas
 
+
 # создаем таблицу
 Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI()
 

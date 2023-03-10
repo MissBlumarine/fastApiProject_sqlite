@@ -10,5 +10,5 @@ class Software(Base):
     software = Column(String)
     version = Column(String)
 
-    # class Config:
-    #     orm_mode = True
+    class Config:
+        orm_mode = True
