@@ -19,8 +19,8 @@ def get_software_by_software_and_version(db: Session, version: str, software: st
 
 def update_software_by_id(db: Session, software_id: int, software: str, version: str):
     software_by_id = db.query(models.Software).filter(models.Software.id == software_id).first()
-    if software_by_id is None:
-        raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+    # if software_by_id is None:
+    #     raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
     software_by_id.version = version
     software_by_id.software = software
     db.commit()

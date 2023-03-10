@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from fastapi import Body
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -83,5 +84,15 @@ def test_get_software_by_id_none():
 
 
 def test_update_software_by_id():
-    response = client.put("/version/1", json={"id": 1, "software": "i_licy", "version": "2.5"})
+    software_id = 1
+    software = "i_licy"
+    version="2.5"
+    new = {"software": "i_licy", "version": "2.5"}
+    response = client.put(f"/version/1", data=Body(new))
+    data = response.json()
+    print(data)
+    data["version"] = version
+    data["software"] = software
+    # assert data["version"]
+
     assert response.status_code == 200

@@ -53,7 +53,8 @@ def get_software_by_id(software_id: int, db: Session = Depends(get_db)):
 
 @app.put("/version/{software_id}", response_model=schemas.Software)
 def update_software_by_id(software_id: int, software: str, version: str, db: Session = Depends(get_db)):
-    software_new = db.query(models.Software).filter(models.Software.id == software_id).first()
+    # software_new = db.query(models.Software).filter(models.Software.id == software_id).first()
+    software_new = crud.update_software_by_id(db, software_id=software_id, software=software, version=version)
     if software_new is None:
         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
     software_new.version = version
