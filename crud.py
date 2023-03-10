@@ -3,12 +3,6 @@ import models
 import schemas
 from fastapi import HTTPException
 
-SOFTWARE: dict[int, models.Software] = {}
-
-
-def list_software() -> list[schemas.Software]:
-    return list(SOFTWARE.values())
-
 
 def get_all_software(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Software).offset(skip).limit(limit).all()

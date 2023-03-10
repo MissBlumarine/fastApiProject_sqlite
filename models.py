@@ -9,6 +9,6 @@ class Software(Base):
     id = Column(Integer, primary_key=True, index=True)
     software = Column(String)
     version = Column(String)
-
-    class Config:
-        orm_mode = True
+    #
+    # class Config:
+    #     orm_mode = True

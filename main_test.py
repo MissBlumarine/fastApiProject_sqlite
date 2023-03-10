@@ -1,10 +1,13 @@
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from database import Base
-from main import app, get_db
+# from main import app, get_db
+from main import *
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///.test.db"
 
@@ -41,7 +44,7 @@ client = TestClient(app)
 def test_create_software():
     response = client.post(
         "/version",
-        json={"id": 0, "software": "licy", "version": "4.5"}
+        json={"software": "licy", "version": "4.5"}
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -54,7 +57,7 @@ def test_create_software():
 def test_create_software_exists():
     response = client.post(
         "/version",
-        json={"id": 0, "software": "licy", "version": "4.5"}
+        json={"software": "licy", "version": "4.5"}
     )
     assert response.status_code == 400, response.text
 
@@ -65,21 +68,20 @@ def test_get_all_software():
     )
     assert response.status_code == 200
     data = response.json()
-    assert data == [{"id": 0, "software": "licy", "version": "4.5"}]
+    assert data == [{"id": 1, "software": "licy", "version": "4.5"}]
 
 
-# def test_get_software_by_id():
-#     id = 0
-#     response = client.get(f"/versions/{id}")
-#     # assert response.status_code == 200
-#     assert response.json() == {"id": 0, "software": "licy", "version": "4.5"}
-#     assert response.json()["id"] == 0
-#     assert response.json()['software'] == 'licy'
-#     assert response.json()['version'] == '4.5'
+def test_get_software_by_id():
+    response = client.get(f"/versions/1/")
+    assert response.status_code == 200
+    assert response.json() == {"id": 1, "software": "licy", "version": "4.5"}
 
 
-# def test_get_software_by_id_none():
-#     response = client.get(
-#         f"/versions/{id}"
-#     )
-#     assert response.status_code == 400
+def test_get_software_by_id_none():
+    response = client.get(f"/versions/2/")
+    assert response.status_code == 404
+
+
+def test_update_software_by_id():
+    response = client.put("/version/1", json={"id": 1, "software": "i_licy", "version": "2.5"})
+    assert response.status_code == 200

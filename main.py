@@ -35,12 +35,13 @@ def get_all_software(skip: int = 0, limit: int = 100, db: Session = Depends(get_
     return softwares
 
 
-@app.get("/versions/{id}", response_model=schemas.Software)
+@app.get("/versions/{software_id}", response_model=schemas.Software)
 def get_software_by_id(software_id: int, db: Session = Depends(get_db)):
     software_ex = crud.get_software_by_id(db, software_id=software_id)
     if software_ex is None:
         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
     return software_ex
+
 
 #
 # @app.put("/version/{id}", response_model=schemas.Software)
@@ -50,7 +51,7 @@ def get_software_by_id(software_id: int, db: Session = Depends(get_db)):
 #
 # # --------
 
-@app.put("/version/{id}", response_model=schemas.Software)
+@app.put("/version/{software_id}", response_model=schemas.Software)
 def update_software_by_id(software_id: int, software: str, version: str, db: Session = Depends(get_db)):
     software_new = db.query(models.Software).filter(models.Software.id == software_id).first()
     if software_new is None:
@@ -62,8 +63,7 @@ def update_software_by_id(software_id: int, software: str, version: str, db: Ses
     return software_new
 
 
-
-@app.delete("/version/{id}")
+@app.delete("/version/{software_id}")
 def delete_item_by_id(software_id: int, db: Session = Depends(get_db)):
     software_to_delete = crud.delete_item_by_id(db, software_id=software_id)
     if software_to_delete is None:
