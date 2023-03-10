@@ -7,10 +7,8 @@ from database import *
 import crud
 import schemas
 
-
 # создаем таблицу
 Base.metadata.create_all(bind=engine)
-
 
 app = FastAPI()
 
@@ -44,33 +42,25 @@ def get_software_by_id(software_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
     return software_ex
 
+#
+# @app.put("/version/{id}", response_model=schemas.Software)
+# def update_software_by_id(software_id: int, software: str, version: str, db: Session = Depends(get_db)):
+#     software_new = crud.update_software_by_id(db, software_id=software_id, software=software, version=version)
+#     return software_new
+#
+# # --------
 
 @app.put("/version/{id}", response_model=schemas.Software)
 def update_software_by_id(software_id: int, software: str, version: str, db: Session = Depends(get_db)):
-    software_new = crud.update_software_by_id(db, software_id=software_id, software=software, version=version)
+    software_new = db.query(models.Software).filter(models.Software.id == software_id).first()
+    if software_new is None:
+        raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+    software_new.version = version
+    software_new.software = software
+    db.commit()
+    db.refresh(software_new)
     return software_new
 
-
-# @app.put("/version/{id}", response_model=schemas.Software)
-# def update_software_by_id(software_id: int, software: str, version: str, db: Session = Depends(get_db)):
-#     software_new = db.query(models.Software).filter(models.Software.id == software_id).first()
-#     if software_new is None:
-#         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
-#     software_new.version = version
-#     software_new.software = software
-#     db.commit()
-#     db.refresh(software_new)
-#     return software_new
-
-
-# @app.delete("/version/{id}")
-# def delete_item_by_id(software_id: int, db: Session = Depends(get_db)):
-#     software_to_delete = db.query(models.Software).filter(models.Software.id == software_id).first()
-#     if software_to_delete is None:
-#         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
-#     db.delete(software_to_delete)
-#     db.commit()
-#     return software_to_delete
 
 
 @app.delete("/version/{id}")

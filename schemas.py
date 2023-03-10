@@ -6,11 +6,18 @@ class SoftwareBase(BaseModel):
     version: str
 
 
-class SoftwareOut(SoftwareBase):
-    id: int
-
-
 class SoftwareCreate(SoftwareBase):
+    pass
+
+
+# class Software(SoftwareBase):
+#     id: int
+#
+#     class Config:
+#         orm_mode = True
+
+
+class SoftwareOut(SoftwareBase):
     id: int
 
 
@@ -21,6 +28,5 @@ class SoftwareUpdate(SoftwareBase):
 class Software(SoftwareBase):
     id: int
 
-    #
     class Config:
         orm_mode = True
