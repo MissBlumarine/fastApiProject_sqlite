@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 import models
 import schemas
+from fastapi import HTTPException
 
 SOFTWARE: dict[int, models.Software] = {}
 
@@ -22,6 +23,17 @@ def get_software_by_software_and_version(db: Session, version: str, software: st
                                             models.Software.software == software).first()
 
 
+def update_software_by_id(db: Session, software_id: int, software: str, version: str):
+    software_by_id = db.query(models.Software).filter(models.Software.id == software_id).first()
+    if software_by_id is None:
+        raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+    software_by_id.version = version
+    software_by_id.software = software
+    db.commit()
+    db.refresh(software_by_id)
+    return software_by_id
+
+
 def create_software(db: Session, software: schemas.SoftwareCreate):
     # software_id = len(SOFTWARE) + 1
     software = models.Software(id=software.id, software=software.software, version=software.version)
@@ -29,3 +41,12 @@ def create_software(db: Session, software: schemas.SoftwareCreate):
     db.commit()
     db.refresh(software)
     return software
+
+
+def delete_item_by_id(db: Session, software_id: int):
+    software_to_delete = db.query(models.Software).filter(models.Software.id == software_id).first()
+    if software_to_delete is None:
+        raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+    db.delete(software_to_delete)
+    db.commit()
+    return software_to_delete

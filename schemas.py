@@ -14,6 +14,10 @@ class SoftwareCreate(SoftwareBase):
     id: int
 
 
+class SoftwareUpdate(SoftwareBase):
+    id: int
+
+
 class Software(SoftwareBase):
     id: int
 
