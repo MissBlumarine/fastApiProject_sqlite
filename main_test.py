@@ -96,6 +96,19 @@ def test_update_software_by_id_none():
     assert response.status_code == 404
 
 
+def test_update_software_by_id_patch():
+    response = client.patch("/version/1", json={"version": "5.5"})
+    data = response.json()
+    assert response.status_code == 200
+    assert data["software"] == 'i-lucy'
+    assert data["version"] == '5.5'
+
+
+def test_update_software_by_id_patch_none():
+    response = client.patch(f"/version/3", json={"version": "5.5"})
+    assert response.status_code == 404
+
+
 def test_delete_item_by_id():
     response = client.delete(f"/version/1")
     assert response.status_code == 200
