@@ -1,4 +1,6 @@
 from fastapi import Depends, HTTPException, APIRouter
+from fastapi.encoders import jsonable_encoder
+from fastapi.params import Body
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -59,17 +61,13 @@ def update_software_by_id(software_id: int, software: str, version: str, db: Ses
     return software_new
 
 
-# @app.put("/version/{software_id}", response_model=schemas.Software)
-# def update_software_by_id(software_id: int, software: str, version: str, db: Session = Depends(get_db)):
-#     # software_new = db.query(models.Software).filter(models.Software.id == software_id).first()
-#     software_new = crud.update_software_by_id(db, software_id=software_id, software=software, version=version)
-#     if software_new is None:
-#         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
-#     software_new.version = version
-#     software_new.software = software
-#     db.commit()
-#     db.refresh(software_new)
-#     return software_new
+@app.patch("/version/{software_id}", response_model=schemas.Software)
+def update_software_by_id_patch(software_id: int, software: schemas.Software, db: Session = Depends(get_db)):
+    software_to_update = crud.update_software_by_id_patch(db, software_id=software_id, software=software)
+    if not software_to_update:
+        raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+    return software_to_update
+
 
 @app.delete("/version/{software_id}")
 def delete_item_by_id(software_id: int, db: Session = Depends(get_db)):
@@ -77,3 +75,15 @@ def delete_item_by_id(software_id: int, db: Session = Depends(get_db)):
     if software_to_delete is None:
         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
     return software_to_delete
+
+# @app.patch("/version/{software_id}", response_model=schemas.Software)
+# def update_software_by_id_patch(software_id: int, software: schemas.Software, db: Session = Depends(get_db)):
+#     software_to_update = db.query(models.Software).filter(models.Software.id == software_id)
+#     db_note = software_to_update.first()
+#     if not db_note:
+#         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+#     update_data = software.dict(exclude_unset=True)
+#     software_to_update.filter(models.Software.id == software_id).update(update_data, synchronize_session=False)
+#     db.commit()
+#     db.refresh(db_note)
+#     return db_note

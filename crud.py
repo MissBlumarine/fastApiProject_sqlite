@@ -1,3 +1,4 @@
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 import models
 import schemas
@@ -26,6 +27,18 @@ def update_software_by_id(db: Session, software_id: int, software: str, version:
     db.commit()
     db.refresh(software_by_id)
     return software_by_id
+
+
+def update_software_by_id_patch(db: Session, software_id: int, software: schemas.Software):
+    software_to_update = db.query(models.Software).filter(models.Software.id == software_id)
+    db_note = software_to_update.first()
+    if not db_note:
+        raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+    update_data = software.dict(exclude_unset=True)
+    software_to_update.filter(models.Software.id == software_id).update(update_data, synchronize_session=False)
+    db.commit()
+    db.refresh(db_note)
+    return db_note
 
 
 def create_software(db: Session, software: schemas.SoftwareCreate):

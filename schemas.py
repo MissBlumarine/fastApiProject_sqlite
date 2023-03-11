@@ -1,9 +1,10 @@
 from pydantic import BaseModel, Field
+from pydantic.typing import Optional
 
 
 class SoftwareBase(BaseModel):
-    software: str
-    version: str
+    software: Optional[str]
+    version: Optional[str]
 
 
 class SoftwareCreate(SoftwareBase):
@@ -26,7 +27,7 @@ class SoftwareUpdate(SoftwareBase):
 
 
 class Software(SoftwareBase):
-    id: int
+    id: Optional[int]
 
     class Config:
         orm_mode = True

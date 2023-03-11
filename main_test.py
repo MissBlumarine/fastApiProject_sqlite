@@ -94,3 +94,13 @@ def test_update_software_by_id():
 def test_update_software_by_id_none():
     response = client.put(f"/version/3?software=i-lucy&version=2.5")
     assert response.status_code == 404
+
+
+def test_delete_item_by_id():
+    response = client.delete(f"/version/1")
+    assert response.status_code == 200
+
+
+def test_delete_item_by_id_none():
+    response = client.delete(f"/version/3")
+    assert response.status_code == 404
