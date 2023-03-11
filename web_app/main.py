@@ -1,10 +1,7 @@
-from fastapi import Depends, HTTPException, APIRouter
-from fastapi.encoders import jsonable_encoder
-from fastapi.params import Body
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-import models
 from database import *
 import crud
 import schemas
