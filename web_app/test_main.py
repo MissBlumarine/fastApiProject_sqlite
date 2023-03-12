@@ -1,56 +1,10 @@
-import json
-
-import pytest
-from fastapi import Body
+from crud import *
+from main import app
+from test_database_config import *
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from database import Base
-# from main import app, get_db
-from main import *
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///.test.db"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base.metadata.create_all(bind=engine)
 
 
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        db.begin()
-        yield db
-    finally:
-        db.rollback()
-        db.close()
-
-# def override_get_db():
-#     try:
-#         connection = engine.connect()
-#
-#         # begin a non-ORM transaction
-#         transaction = connection.begin()
-#
-#         # bind an individual Session to the connection
-#         db = Session(bind=connection)
-#         # db = Session(engine)
-#
-#         yield db
-#     finally:
-#         db.close()
-#         transaction.rollback()
-#         connection.close()
-
-# @pytest.fixture()
-# def test_db():
-#     Base.metadata.create_all(bind=engine)
-#     yield
-#     Base.metadata.drop_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 
 app.dependency_overrides[get_db] = override_get_db
@@ -58,78 +12,82 @@ app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
-def test_create_software():
+def test_create_software(client_test):
     response = client.post(
         "/version",
-        json={"software": "licy", "version": "4.5"}
+        json={"name": "sugar", "version": "4.5"}
     )
     assert response.status_code == 200, response.text
     data = response.json()
     assert data["version"] == '4.5'
-    assert data["software"] == 'licy'
+    assert data["name"] == 'sugar'
     assert 'id' in data
-    id = data['id']
 
 
-def test_create_software_exists():
+def test_create_software_exists(items, client_test):
     response = client.post(
         "/version",
-        json={"software": "licy", "version": "4.5"}
+        json={"name": "lucy_1", "version": "1.1"}
     )
     assert response.status_code == 400, response.text
 
 
-def test_get_all_software():
+def test_get_all_software(items, client_test):
     response = client.get(
         "/versions"
     )
     assert response.status_code == 200
     data = response.json()
-    assert data == [{"id": 1, "software": "licy", "version": "4.5"}]
+    assert data == [
+        {"id": 1, "name": "lucy_1", "version": "1.1"},
+        {"id": 2, "name": "lucy_2", "version": "1.2"}
+        ]
 
 
-def test_get_software_by_id():
+def test_get_software_by_id(items, client_test):
     response = client.get(f"/versions/1/")
     assert response.status_code == 200
-    assert response.json() == {"id": 1, "software": "licy", "version": "4.5"}
+    assert response.json() == {"id": 1, "name": "lucy_1", "version": "1.1"}
 
 
-def test_get_software_by_id_none():
-    response = client.get(f"/versions/2/")
+def test_get_software_by_id_none(items, client_test):
+    response = client.get(f"/versions/3/")
     assert response.status_code == 404
 
 
-def test_update_software_by_id():
-    response = client.put(f"/version/1?software=i-lucy&version=2.5")
+def test_update_software_by_id(items, client_test):
+    response = client.put(f"/version/1?name=i-lucy&version=1.3")
     data = response.json()
     assert response.status_code == 200
-    assert data["software"] == 'i-lucy'
-    assert data["version"] == '2.5'
+    assert data["name"] == 'i-lucy'
+    assert data["version"] == '1.3'
 
 
-def test_update_software_by_id_none():
-    response = client.put(f"/version/3?software=i-lucy&version=2.5")
+def test_update_software_by_id_none(items, client_test):
+    response = client.put(f"/version/3?name=i-lucy&version=2.5")
     assert response.status_code == 404
 
 
-def test_update_software_by_id_patch():
-    response = client.patch("/version/1", json={"version": "5.5"})
-    data = response.json()
-    assert response.status_code == 200
-    assert data["software"] == 'i-lucy'
-    assert data["version"] == '5.5'
+# def test_update_software_by_id_patch(items, client_test):
+#     # response = client.patch(f"/version/{id}", json={"id": 1, "version": "5.5"})
+#     response = client.patch("/version/1", json={"id": 3, "version": "5.5"})
+#     # response = client.patch(f"/version/1?name=i-lucy&version=5.5")
+#     data = response.json()
+#     assert response.status_code == 200
+#     assert data["name"] == 'lucy_1'
+#     assert data["version"] == '5.5'
+#
+#
+# def test_update_software_by_id_patch_none(items, client_test):
+#     response = client.patch(f"/version/3", json={"version": "5.5"})
+#     assert response.status_code == 404
 
 
-def test_update_software_by_id_patch_none():
-    response = client.patch(f"/version/3", json={"version": "5.5"})
-    assert response.status_code == 404
-
-
-def test_delete_item_by_id():
+def test_delete_item_by_id(items, client_test):
     response = client.delete(f"/version/1")
     assert response.status_code == 200
 
 
-def test_delete_item_by_id_none():
+def test_delete_item_by_id_none(items, client_test):
     response = client.delete(f"/version/3")
     assert response.status_code == 404

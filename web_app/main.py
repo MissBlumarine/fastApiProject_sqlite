@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-from database import *
+from database_config import *
 import crud
 import schemas
 
