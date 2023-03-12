@@ -7,7 +7,7 @@ class Software(Base):
     __tablename__ = "software"
 
     id = Column(Integer, primary_key=True, index=True)
-    software = Column(String)
+    name = Column(String)
     version = Column(String)
     #
     # class Config:

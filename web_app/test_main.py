@@ -29,6 +29,22 @@ def override_get_db():
         db.rollback()
         db.close()
 
+# def override_get_db():
+#     try:
+#         connection = engine.connect()
+#
+#         # begin a non-ORM transaction
+#         transaction = connection.begin()
+#
+#         # bind an individual Session to the connection
+#         db = Session(bind=connection)
+#         # db = Session(engine)
+#
+#         yield db
+#     finally:
+#         db.close()
+#         transaction.rollback()
+#         connection.close()
 
 # @pytest.fixture()
 # def test_db():

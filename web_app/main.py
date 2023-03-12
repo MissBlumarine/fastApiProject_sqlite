@@ -22,7 +22,7 @@ def get_db():
 
 @app.post("/version", response_model=schemas.Software)
 def create_software(software: schemas.SoftwareCreate, db: Session = Depends(get_db)):
-    software_new = crud.get_software_by_software_and_version(db, version=software.version, software=software.software)
+    software_new = crud.get_software_by_software_and_version(db, version=software.version, software=software.name)
     if software_new:
         raise HTTPException(status_code=400, detail="Уже существует")
     return crud.create_software(db=db, software=software)
@@ -43,20 +43,27 @@ def get_software_by_id(software_id: int, db: Session = Depends(get_db)):
 
 
 @app.put("/version/{software_id}", response_model=schemas.Software)
-def update_software_by_id(software_id: int, software: str, version: str, db: Session = Depends(get_db)):
-    software_new = crud.update_software_by_id(db, software_id=software_id, software=software, version=version)
+def update_software_by_id(software_id: int, name: str, version: str, db: Session = Depends(get_db)):
+    software_new = crud.update_software_by_id(db, software_id=software_id, name=name, version=version)
     if software_new is None:
         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
     return software_new
 
 
-@app.patch("/version/{software_id}", response_model=schemas.Software)
-def update_software_by_id_patch(software_id: int, software: schemas.Software, db: Session = Depends(get_db)):
-    software_to_update = crud.update_software_by_id_patch(db, software_id=software_id, software=software)
+@app.patch("/version/{software.id}", response_model=schemas.Software)
+def update_software_by_id_patch(software: schemas.Software, db: Session = Depends(get_db)):
+    software_to_update = crud.update_software_by_id_patch(db, software=software)
     if not software_to_update:
-        raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+        raise HTTPException(status_code=404, detail=f'Не найден id = {software.id}')
     return software_to_update
 
+
+# @app.patch("/version/{software_id}", response_model=schemas.Software)
+# def update_software_by_id_patch(software_id: int, software: schemas.Software, db: Session = Depends(get_db)):
+#     software_to_update = crud.update_software_by_id_patch(db, software_id=software_id, software=software)
+#     if not software_to_update:
+#         raise HTTPException(status_code=404, detail=f'Не найден id = {software_id}')
+#     return software_to_update
 
 @app.delete("/version/{software_id}")
 def delete_item_by_id(software_id: int, db: Session = Depends(get_db)):
