@@ -2,6 +2,8 @@ from crud import *
 from main import app
 from test_database_config import *
 from fastapi.testclient import TestClient
+from fastapi import status
+from models import *
 
 
 # Base.metadata.create_all(bind=engine)
@@ -68,14 +70,19 @@ def test_update_software_by_id_none(items, client_test):
     assert response.status_code == 404
 
 
-# def test_update_software_by_id_patch(items, client_test):
-#     # response = client.patch(f"/version/{id}", json={"id": 1, "version": "5.5"})
-#     response = client.patch("/version/1", json={"id": 3, "version": "5.5"})
-#     # response = client.patch(f"/version/1?name=i-lucy&version=5.5")
-#     data = response.json()
-#     assert response.status_code == 200
-#     assert data["name"] == 'lucy_1'
-#     assert data["version"] == '5.5'
+def test_update_software_by_id_patch(items, client_test):
+    # response = client.patch(f"/version/{id}", json={"id": 1, "version": "5.5"})
+    response = client.patch(f"/version/1", json={"id": 1, "name": "lucy_1", "version": "5.5"})
+    # response = client.patch(f"/version/1?name=i-lucy&version=5.5")
+
+    data = response.json()
+    print(response.headers)
+    assert "allow" in response.headers, response.headers
+    assert response.status_code == 200
+
+
+    assert data["name"] == 'lucy_1'
+    assert data["version"] == '5.5'
 #
 #
 # def test_update_software_by_id_patch_none(items, client_test):
